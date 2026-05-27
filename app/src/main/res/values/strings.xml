@@ -1,0 +1,9 @@
+<resources>
+    <string name="app_name">Proyecto puzzle-logico</string>
+    <string name="Titulo">Logic puzzle</string>
+
+    <string name="btn1">Iniciar</string>
+    <string name="btn2">Modo libre</string>
+
+
+</resources>
