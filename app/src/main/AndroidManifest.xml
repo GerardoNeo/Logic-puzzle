@@ -12,10 +12,20 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.ProyectoPuzzlelogico">
         <activity
+            android:name=".FreeMode"
+            android:screenOrientation="portrait"
+            android:exported="false" />
+        <activity
+            android:name=".Tutorial"
+            android:screenOrientation="portrait"
+            android:exported="false" />
+        <activity
             android:name=".Inicio"
+            android:screenOrientation="portrait"
             android:exported="false" />
         <activity
             android:name=".MainActivity"
+            android:screenOrientation="portrait"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
