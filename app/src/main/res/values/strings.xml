@@ -5,5 +5,12 @@
     <string name="btn1">Iniciar</string>
     <string name="btn2">Modo libre</string>
 
+    <string name="btn3">Probar</string>
 
+    <string-array name="compuertas">
+        <item>Seleccionar</item>
+        <item>AND</item>
+        <item>OR</item>
+        <item>NOT</item>
+    </string-array>
 </resources>

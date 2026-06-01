@@ -4,84 +4,197 @@ import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
-import android.graphics.Path;
+import android.view.MotionEvent;
 import android.view.View;
+import android.widget.Toast;
+
+import java.util.ArrayList;
 
 public class TableroView extends View {
 
-    Paint paint;
+    private Paint paint;
+    private Paint paintGrid;
+
+    private ArrayList<Compuerta> compuertas;
+
+    private boolean arrastrando = false;
+    private boolean permitirMovimiento = true;
+
+    private float offsetX;
+    private float offsetY;
+
+    private Compuerta compuertaSeleccionada;
+
+    private static final int TAM_CELDA = 50;
 
     public TableroView(Context context) {
         super(context);
 
         paint = new Paint();
-
         paint.setColor(Color.WHITE);
-
         paint.setStyle(Paint.Style.STROKE);
-
         paint.setStrokeWidth(6);
-
         paint.setAntiAlias(true);
+
+        paintGrid = new Paint();
+        paintGrid.setColor(Color.DKGRAY);
+        paintGrid.setStrokeWidth(1);
+
+        compuertas = new ArrayList<>();
+    }
+
+    public void setPermitirMovimiento(boolean permitir) {
+        this.permitirMovimiento = permitir;
     }
 
     @Override
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
 
-        dibujarNOT(canvas, 100, 100);
+        dibujarCuadricula(canvas);
 
-        dibujarNOT(canvas, 500, 100);
-
+        for (Compuerta compuerta : compuertas) {
+            compuerta.dibujar(canvas);
+        }
     }
 
-    public void dibujarNOT(
-            Canvas canvas,
-            int x,
-            int y
-    ) {
+    private void dibujarCuadricula(Canvas canvas) {
 
-        // LINEA ENTRADA
+        for (int x = 0; x <= getWidth(); x += TAM_CELDA) {
+            canvas.drawLine(x, 0, x, getHeight(), paintGrid);
+        }
 
-        canvas.drawLine(
-                x,
-                y + 75,
-                x + 50,
-                y + 75,
-                paint
-        );
+        for (int y = 0; y <= getHeight(); y += TAM_CELDA) {
+            canvas.drawLine(0, y, getWidth(), y, paintGrid);
+        }
+    }
 
-        // TRIANGULO
+    public void agregarCompuerta(String tipo) {
 
-        Path path = new Path();
+        float x = getWidth() / 2f - 50;
+        float y = getHeight() / 2f - 50;
 
-        path.moveTo(x + 50, y);
+        switch (tipo) {
 
-        path.lineTo(x + 50, y + 150);
+            case "AND":
+                compuertas.add(new And(x, y, paint));
+                break;
 
-        path.lineTo(x + 200, y + 75);
+            case "OR":
+                compuertas.add(new Or(x, y, paint));
+                break;
 
-        path.close();
+            case "NOT":
+                compuertas.add(new Not(x, y, paint));
+                break;
+        }
 
-        canvas.drawPath(path, paint);
+        invalidate();
+    }
 
-        // CIRCULO
+    @Override
+    public boolean onTouchEvent(MotionEvent event) {
 
-        canvas.drawCircle(
-                x + 225,
-                y + 75,
-                20,
-                paint
-        );
+        float touchX = event.getX();
+        float touchY = event.getY();
 
-        // LINEA SALIDA
+        switch (event.getAction()) {
 
-        canvas.drawLine(
-                x + 245,
-                y + 75,
-                x + 320,
-                y + 75,
-                paint
-        );
+            case MotionEvent.ACTION_DOWN:
+
+                compuertaSeleccionada = null;
+
+                for (int i = compuertas.size() - 1; i >= 0; i--) {
+
+                    Compuerta compuerta = compuertas.get(i);
+
+                    if (compuerta.contiene(touchX, touchY)) {
+
+                        // 🔒 MODO BLOQUEADO → MENÚ
+                        if (!permitirMovimiento) {
+                            mostrarMenu(compuerta);
+                            return true;
+                        }
+
+                        // 🔓 MODO EDICIÓN → ARRASTRAR
+                        compuertaSeleccionada = compuerta;
+
+                        offsetX = touchX - compuerta.getX();
+                        offsetY = touchY - compuerta.getY();
+
+                        arrastrando = true;
+                        break;
+                    }
+                }
+
+                break;
+
+            case MotionEvent.ACTION_MOVE:
+
+                if (arrastrando && compuertaSeleccionada != null) {
+
+                    compuertaSeleccionada.mover(
+                            touchX - offsetX,
+                            touchY - offsetY
+                    );
+
+                    invalidate();
+                }
+
+                break;
+
+            case MotionEvent.ACTION_UP:
+
+                if (compuertaSeleccionada != null) {
+
+                    float nuevoX =
+                            Math.round(compuertaSeleccionada.getX() / TAM_CELDA) * TAM_CELDA;
+
+                    float nuevoY =
+                            Math.round(compuertaSeleccionada.getY() / TAM_CELDA) * TAM_CELDA;
+
+                    compuertaSeleccionada.mover(nuevoX, nuevoY);
+
+                    invalidate();
+                }
+
+                arrastrando = false;
+                compuertaSeleccionada = null;
+
+                break;
+        }
+
+        return true;
+    }
+
+    // 🔥 MENÚ DE ACCIONES
+    private void mostrarMenu(Compuerta compuerta) {
+
+        String[] opciones = {"Eliminar", "Rotar", "Conectar"};
+
+        new android.app.AlertDialog.Builder(getContext())
+                .setTitle("Acciones")
+                .setItems(opciones, (dialog, which) -> {
+
+                    switch (which) {
+
+                        case 0: // ELIMINAR
+                            compuertas.remove(compuerta);
+                            invalidate();
+                            break;
+
+                        case 1: // ROTAR
+                            compuerta.rotar();
+                            invalidate();
+                            break;
+
+                        case 2: // CONECTAR
+                            Toast.makeText(getContext(),
+                                    "Modo conexión activado",
+                                    Toast.LENGTH_SHORT).show();
+                            break;
+                    }
+                })
+                .show();
     }
 }
