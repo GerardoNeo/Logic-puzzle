@@ -11,7 +11,7 @@ import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
 public class MainActivity extends AppCompatActivity {
-    public static int tiempoCarga = 100;
+    public static int tiempoCarga = 1000;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

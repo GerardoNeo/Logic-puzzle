@@ -112,7 +112,7 @@ public class TableroView extends View {
 
                         // 🔒 MODO BLOQUEADO → MENÚ
                         if (!permitirMovimiento) {
-                            mostrarMenu(compuerta);
+                            //mostrarMenu(compuerta);
                             return true;
                         }
 
@@ -168,7 +168,7 @@ public class TableroView extends View {
     }
 
     // 🔥 MENÚ DE ACCIONES
-    private void mostrarMenu(Compuerta compuerta) {
+    /*private void mostrarMenu(Compuerta compuerta) {
 
         String[] opciones = {"Eliminar", "Rotar", "Conectar"};
 
@@ -196,5 +196,5 @@ public class TableroView extends View {
                     }
                 })
                 .show();
-    }
+    }*/
 }
