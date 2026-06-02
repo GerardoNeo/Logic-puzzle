@@ -6,7 +6,6 @@ import android.graphics.Color;
 import android.graphics.Paint;
 import android.view.MotionEvent;
 import android.view.View;
-import android.widget.Toast;
 
 import java.util.ArrayList;
 
@@ -14,6 +13,7 @@ public class TableroView extends View {
 
     private Paint paint;
     private Paint paintGrid;
+    private Paint paintSeleccion;
 
     private ArrayList<Compuerta> compuertas;
 
@@ -26,6 +26,10 @@ public class TableroView extends View {
     private Compuerta compuertaSeleccionada;
 
     private static final int TAM_CELDA = 50;
+
+    public ArrayList<Compuerta> getCompuertas() {
+        return compuertas;
+    }
 
     public TableroView(Context context) {
         super(context);
@@ -40,6 +44,11 @@ public class TableroView extends View {
         paintGrid.setColor(Color.DKGRAY);
         paintGrid.setStrokeWidth(1);
 
+        paintSeleccion = new Paint();
+        paintSeleccion.setColor(Color.YELLOW);
+        paintSeleccion.setStyle(Paint.Style.STROKE);
+        paintSeleccion.setStrokeWidth(4);
+
         compuertas = new ArrayList<>();
     }
 
@@ -53,19 +62,45 @@ public class TableroView extends View {
 
         dibujarCuadricula(canvas);
 
+        dibujarConexiones(canvas);
+
         for (Compuerta compuerta : compuertas) {
+
             compuerta.dibujar(canvas);
+
+            if (compuerta == compuertaSeleccionada) {
+
+                canvas.drawRect(
+                        compuerta.getX() - 15,
+                        compuerta.getY() - 15,
+                        compuerta.getX() + 115,
+                        compuerta.getY() + 115,
+                        paintSeleccion
+                );
+            }
         }
     }
 
     private void dibujarCuadricula(Canvas canvas) {
 
         for (int x = 0; x <= getWidth(); x += TAM_CELDA) {
-            canvas.drawLine(x, 0, x, getHeight(), paintGrid);
+            canvas.drawLine(
+                    x,
+                    0,
+                    x,
+                    getHeight(),
+                    paintGrid
+            );
         }
 
         for (int y = 0; y <= getHeight(); y += TAM_CELDA) {
-            canvas.drawLine(0, y, getWidth(), y, paintGrid);
+            canvas.drawLine(
+                    0,
+                    y,
+                    getWidth(),
+                    y,
+                    paintGrid
+            );
         }
     }
 
@@ -87,6 +122,14 @@ public class TableroView extends View {
             case "NOT":
                 compuertas.add(new Not(x, y, paint));
                 break;
+
+            case "LED":
+                compuertas.add(new Led(x, y, paint));
+                break;
+
+            case "FUENTE":
+                compuertas.add(new Fuente(x, y, paint));
+                break;
         }
 
         invalidate();
@@ -103,6 +146,7 @@ public class TableroView extends View {
             case MotionEvent.ACTION_DOWN:
 
                 compuertaSeleccionada = null;
+                invalidate();
 
                 for (int i = compuertas.size() - 1; i >= 0; i--) {
 
@@ -110,19 +154,26 @@ public class TableroView extends View {
 
                     if (compuerta.contiene(touchX, touchY)) {
 
-                        // 🔒 MODO BLOQUEADO → MENÚ
-                        if (!permitirMovimiento) {
-                            //mostrarMenu(compuerta);
-                            return true;
+                        compuertaSeleccionada = compuerta;
+
+                        // Actualizar spinners del Activity
+                        if (getContext() instanceof Tutorial) {
+                            ((Tutorial) getContext()).actualizarSpinners();
                         }
 
-                        // 🔓 MODO EDICIÓN → ARRASTRAR
-                        compuertaSeleccionada = compuerta;
+                        if (!permitirMovimiento) {
+
+                            invalidate();
+                            return true;
+                        }
 
                         offsetX = touchX - compuerta.getX();
                         offsetY = touchY - compuerta.getY();
 
                         arrastrando = true;
+
+                        invalidate();
+
                         break;
                     }
                 }
@@ -145,21 +196,27 @@ public class TableroView extends View {
 
             case MotionEvent.ACTION_UP:
 
-                if (compuertaSeleccionada != null) {
+                if (arrastrando && compuertaSeleccionada != null) {
 
                     float nuevoX =
-                            Math.round(compuertaSeleccionada.getX() / TAM_CELDA) * TAM_CELDA;
+                            Math.round(
+                                    compuertaSeleccionada.getX() / TAM_CELDA
+                            ) * TAM_CELDA;
 
                     float nuevoY =
-                            Math.round(compuertaSeleccionada.getY() / TAM_CELDA) * TAM_CELDA;
+                            Math.round(
+                                    compuertaSeleccionada.getY() / TAM_CELDA
+                            ) * TAM_CELDA;
 
-                    compuertaSeleccionada.mover(nuevoX, nuevoY);
+                    compuertaSeleccionada.mover(
+                            nuevoX,
+                            nuevoY
+                    );
 
                     invalidate();
                 }
 
                 arrastrando = false;
-                compuertaSeleccionada = null;
 
                 break;
         }
@@ -167,34 +224,71 @@ public class TableroView extends View {
         return true;
     }
 
-    // 🔥 MENÚ DE ACCIONES
-    /*private void mostrarMenu(Compuerta compuerta) {
+    public void eliminarSeleccionada() {
 
-        String[] opciones = {"Eliminar", "Rotar", "Conectar"};
+        if (compuertaSeleccionada != null) {
 
-        new android.app.AlertDialog.Builder(getContext())
-                .setTitle("Acciones")
-                .setItems(opciones, (dialog, which) -> {
+            for (Compuerta c : compuertas) {
+                c.getSalidas().removeIf(conexion ->
+                        conexion.getDestino() == compuertaSeleccionada ||
+                                conexion.getOrigen() == compuertaSeleccionada
+                );
+            }
 
-                    switch (which) {
+            compuertas.remove(compuertaSeleccionada);
+            compuertaSeleccionada = null;
 
-                        case 0: // ELIMINAR
-                            compuertas.remove(compuerta);
-                            invalidate();
-                            break;
+            invalidate();
+        }
+    }
 
-                        case 1: // ROTAR
-                            compuerta.rotar();
-                            invalidate();
-                            break;
+    public void rotarSeleccionada() {
 
-                        case 2: // CONECTAR
-                            Toast.makeText(getContext(),
-                                    "Modo conexión activado",
-                                    Toast.LENGTH_SHORT).show();
-                            break;
-                    }
-                })
-                .show();
-    }*/
+        if (compuertaSeleccionada != null) {
+
+            compuertaSeleccionada.rotar();
+
+            invalidate();
+        }
+    }
+
+    public Compuerta buscarCompuerta(String nombre) {
+
+        for (Compuerta c : compuertas) {
+
+            if (c.getNombre().equals(nombre)) {
+                return c;
+            }
+        }
+
+        return null;
+    }
+
+    public Compuerta getCompuertaSeleccionada() {
+        return compuertaSeleccionada;
+    }
+
+    private void dibujarConexiones(Canvas canvas) {
+
+        Paint p = new Paint();
+        p.setColor(Color.GREEN);
+        p.setStrokeWidth(6);
+        p.setAntiAlias(true);
+
+        for (Compuerta origen : compuertas) {
+
+            for (Conexion conexion : origen.getSalidas()) {
+
+                Compuerta destino = conexion.getDestino();
+
+                float x1 = origen.getSalidaX();
+                float y1 = origen.getSalidaY();
+
+                float x2 = destino.getEntradaX(conexion.getEntradaDestino());
+                float y2 = destino.getEntradaY(conexion.getEntradaDestino());
+
+                canvas.drawLine(x1, y1, x2, y2, p);
+            }
+        }
+    }
 }

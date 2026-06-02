@@ -12,5 +12,7 @@
         <item>AND</item>
         <item>OR</item>
         <item>NOT</item>
+        <item>LED</item>
+        <item>FUENTE</item>
     </string-array>
 </resources>

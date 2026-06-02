@@ -10,12 +10,11 @@ public class Not extends Compuerta {
 
     public Not(float x, float y, Paint paint) {
         super(x, y, paint);
-        actualizarHitbox();
     }
 
     @Override
     protected void actualizarHitbox() {
-        hitbox.set(x - 40, y, x + 170, y + alto);
+        hitbox.set(x - 40, y, x + ancho + 70, y + alto);
     }
 
     @Override
@@ -34,33 +33,69 @@ public class Not extends Compuerta {
         canvas.save();
         canvas.rotate(rotacion, x + ancho / 2f, y + alto / 2f);
 
+        Paint p = paint;
+
+        // 🔺 Triángulo del NOT
         Path t = new Path();
         t.moveTo(x, y);
         t.lineTo(x, y + alto);
         t.lineTo(x + ancho, y + alto / 2f);
         t.close();
 
-        canvas.drawPath(t, paint);
+        canvas.drawPath(t, p);
 
+        // ⚪ Burbuja de negación
         float r = 15;
 
-        canvas.drawCircle(
-                x + ancho + r,
-                y + alto / 2f,
-                r,
-                paint
+        float bubbleX = x + ancho + r;
+        float centerY = y + alto / 2f;
+
+        canvas.drawCircle(bubbleX, centerY, r, p);
+
+        // 🔌 ENTRADA (izquierda)
+        canvas.drawLine(
+                x - 40,
+                centerY,
+                x,
+                centerY,
+                p
         );
 
-        canvas.drawLine(x - 40, y + alto / 2f, x, y + alto / 2f, paint);
-
+        // 🔌 SALIDA (desde la burbuja, no desde el triángulo)
         canvas.drawLine(
-                x + ancho + r * 2,
-                y + alto / 2f,
-                x + ancho + r * 2 + 40,
-                y + alto / 2f,
-                paint
+                bubbleX + r,
+                centerY,
+                bubbleX + r + 40,
+                centerY,
+                p
         );
 
         canvas.restore();
+    }
+
+    @Override
+    public float getEntradaX(int entrada) {
+        return x - 40;
+    }
+
+    @Override
+    public float getEntradaY(int entrada) {
+        return y + alto / 2f;
+    }
+
+    @Override
+    public float getSalidaX() {
+        // salida real: después de la burbuja
+        return x + ancho + 60;
+    }
+
+    @Override
+    public float getSalidaY() {
+        return y + alto / 2f;
+    }
+
+    @Override
+    public void resetEntradas() {
+        entradaA = false;
     }
 }

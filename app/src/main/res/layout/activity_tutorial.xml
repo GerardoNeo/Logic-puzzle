@@ -12,7 +12,7 @@
     <FrameLayout
         android:id="@+id/contenedorTablero"
         android:layout_width="380dp"
-        android:layout_height="500dp"
+        android:layout_height="470dp"
         android:layout_marginStart="15dp"
         android:layout_marginTop="14dp"
         android:layout_marginEnd="16dp"
@@ -25,9 +25,11 @@
         android:id="@+id/button2"
         android:layout_width="50dp"
         android:layout_height="50dp"
-        android:layout_marginTop="19dp"
+        android:layout_marginTop="8dp"
         android:layout_marginEnd="16dp"
+        android:background="@drawable/ic_strash"
         android:contentDescription="btn"
+        android:onClick="borrar"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/contenedorTablero" />
 
@@ -60,7 +62,9 @@
         android:layout_height="50dp"
         android:layout_marginTop="16dp"
         android:layout_marginEnd="17dp"
+        android:background="@drawable/ic_verify"
         android:contentDescription="button"
+        android:onClick="probar"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
@@ -69,7 +73,7 @@
         android:layout_width="300dp"
         android:layout_height="50dp"
         android:layout_marginStart="15dp"
-        android:layout_marginTop="19dp"
+        android:layout_marginTop="8dp"
         android:layout_marginEnd="31dp"
         app:layout_constraintEnd_toStartOf="@+id/button2"
         app:layout_constraintStart_toStartOf="parent"
@@ -80,10 +84,8 @@
         android:layout_width="300dp"
         android:layout_height="50dp"
         android:layout_marginStart="15dp"
-        android:layout_marginTop="7dp"
+        android:layout_marginTop="8dp"
         android:layout_marginEnd="32dp"
-        android:layout_marginBottom="25dp"
-        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toStartOf="@+id/button6"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/spinner2" />
@@ -92,12 +94,26 @@
         android:id="@+id/button6"
         android:layout_width="50dp"
         android:layout_height="50dp"
-        android:layout_marginTop="7dp"
+        android:layout_marginTop="8dp"
         android:layout_marginEnd="15dp"
-        android:layout_marginBottom="25dp"
+        android:background="@drawable/ic_rotage"
         android:contentDescription="btn"
-        app:layout_constraintBottom_toBottomOf="parent"
+        android:onClick="rotar"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/button2" />
+
+    <Button
+        android:id="@+id/button7"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginEnd="14dp"
+        android:layout_marginBottom="7dp"
+        android:background="@drawable/ic_save"
+        android:contentDescription="btn"
+        android:onClick="crearConexion"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/button6" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

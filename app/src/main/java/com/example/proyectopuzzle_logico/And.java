@@ -2,6 +2,7 @@ package com.example.proyectopuzzle_logico;
 
 import android.graphics.Canvas;
 import android.graphics.Paint;
+import android.graphics.RectF;
 
 public class And extends Compuerta {
 
@@ -10,7 +11,6 @@ public class And extends Compuerta {
 
     public And(float x, float y, Paint paint) {
         super(x, y, paint);
-        actualizarHitbox();
     }
 
     @Override
@@ -21,7 +21,7 @@ public class And extends Compuerta {
     @Override
     public void recibirEntrada(int entrada, boolean valor) {
         if (entrada == 0) entradaA = valor;
-        if (entrada == 1) entradaB = valor;
+        else if (entrada == 1) entradaB = valor;
     }
 
     @Override
@@ -56,5 +56,10 @@ public class And extends Compuerta {
         );
 
         canvas.restore();
+    }
+    @Override
+    public void resetEntradas() {
+        entradaA = false;
+        entradaB = false;
     }
 }

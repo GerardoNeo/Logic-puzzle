@@ -20,7 +20,7 @@
         android:layout_marginBottom="258dp"
         android:background="@drawable/styles"
 
-        android:onClick="goToFreeMode"
+        android:onClick="goToTutorial"
         android:text="@string/btn2"
         android:textColor="#0000FF"
         app:backgroundTint="@null"
@@ -38,7 +38,7 @@
         android:layout_marginEnd="108dp"
         android:background="@drawable/styles"
 
-        android:onClick="goToTutorial"
+        android:onClick="goToFreeMode"
         android:text="@string/btn1"
         android:textColor="#0000FF"
 
